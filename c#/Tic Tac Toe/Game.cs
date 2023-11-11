@@ -61,7 +61,12 @@ namespace Tic_Tac_Toe
             }
             while (status == Status.Null);
 
-            WriteLine("\n" + status + " wins!");
+            WriteLine();
+
+            if (status == Status.Draw)
+                WriteLine("Draw!");
+            else
+                WriteLine(status + " wins!");
             ReadLine();
         }
     }

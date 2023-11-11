@@ -19,7 +19,8 @@ namespace Tic_Tac_Toe
     {
         Player1,
         Player2,
-        Null
+        Null,
+        Draw
     }
 
     class Board
@@ -99,7 +100,7 @@ namespace Tic_Tac_Toe
 
         public static void Init()
         {
-            
+
         }
 
         public void Print()
@@ -262,7 +263,13 @@ namespace Tic_Tac_Toe
                     return Status.Player2;
             }
 
-            return Status.Null;
+            foreach (Status spot in _board)
+            {
+                if (spot == Status.Null)
+                    return Status.Null;
+            }
+
+            return Status.Draw;
         }
     }
 }
