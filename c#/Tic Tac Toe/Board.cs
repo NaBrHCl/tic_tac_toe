@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using static System.Console;
+﻿using static System.Console;
 
 namespace Tic_Tac_Toe
 {
@@ -18,8 +17,8 @@ namespace Tic_Tac_Toe
 
     public enum Status
     {
-        O,
-        X,
+        Player1,
+        Player2,
         Null
     }
 
@@ -29,12 +28,12 @@ namespace Tic_Tac_Toe
         {
             { 0,1,2 },
             { 3,4,5 },
-            { 5,6,7 },
-            { 0,3,5 },
-            { 1,4,6 },
-            { 2,5,7 },
-            { 0,4,7 },
-            { 2,4,5 }
+            { 6,7,8 },
+            { 0,3,6 },
+            { 1,4,7 },
+            { 2,5,8 },
+            { 0,4,8 },
+            { 2,4,6 }
         };
 
         private const string HORIZONTAL_SEPARATOR = "---+---+---";
@@ -48,10 +47,15 @@ namespace Tic_Tac_Toe
         private const int COUNT_ROWS = 3;
         private const int COUNT_COLUMNS = 3;
 
+        private const int CURSOR_VERTICAL_DISPLACEMENT = 3;
+        private const int CURSOR_HORIZONTAL_DISPLACEMENT = 1;
+
+        private const ConsoleColor HIGHLIGHT_COLOR = ConsoleColor.DarkGray;
+
         public bool IsPlayer1
         {
-            get => IsPlayer1;
-            private set => IsPlayer1 = value;
+            get;
+            private set;
         }
 
         private Status[] _board = new Status[9];
@@ -59,15 +63,43 @@ namespace Tic_Tac_Toe
         private int[] _verticalPos = new int[COUNT_ROWS];
         private int _turnPos;
 
+        private int _currentCursorPos;
+        private int _previousCursorPos;
+
+        public int CurrentCursorX
+        {
+            get => _currentCursorPos % 3;
+        }
+
+        public int CurrentCursorY
+        {
+            get => _currentCursorPos / 3;
+        }
+
+        public int PreviousCursorX
+        {
+            get => _previousCursorPos % 3;
+        }
+
+        public int PreviousCursorY
+        {
+            get => _previousCursorPos / 3;
+        }
+
         public Board()
         {
             for (int i = 0; i < _board.Length; i++)
                 _board[i] = Status.Null;
+
+            _currentCursorPos = (int)Math.Floor((double)(COUNT_COLUMNS * COUNT_ROWS) / 2);
+            _previousCursorPos = _currentCursorPos;
+
+            IsPlayer1 = true;
         }
 
         public static void Init()
         {
-
+            
         }
 
         public void Print()
@@ -116,25 +148,83 @@ namespace Tic_Tac_Toe
             WriteLine(turnText + new string(' ', WindowWidth - turnText.Length));
         }
 
-        public void GetOption()
+        public bool GetOption()
         {
-            Key input = Input.Get();
+            _currentCursorPos = (int)Math.Floor((double)(COUNT_COLUMNS * COUNT_ROWS) / 2);
+            _previousCursorPos = _currentCursorPos;
 
-            if (input == Key.Cancel)
-                return;
+            PrintCurrentCursor();
 
-            while ()
+            while (true)
             {
+                Key input = Input.Get();
 
+                switch (input)
+                {
+                    case Key.Left: TryMoveCursor(-CURSOR_HORIZONTAL_DISPLACEMENT); break;
+                    case Key.Right: TryMoveCursor(CURSOR_HORIZONTAL_DISPLACEMENT); break;
+                    case Key.Up: TryMoveCursor(-CURSOR_VERTICAL_DISPLACEMENT); break;
+                    case Key.Down: TryMoveCursor(CURSOR_VERTICAL_DISPLACEMENT); break;
+                    case Key.Confirm:
+                        if (TryPlacement((Move)_currentCursorPos))
+                        {
+                            return false;
+                        }
+                        break;
+                    case Key.Cancel: return true;
+                }
             }
         }
 
-        public bool TryMove(Move move)
+        private string GetStatusText(int x, int y)
+        {
+            return (_board[y * COUNT_COLUMNS + x] == Status.Null) ? BLANK : (_board[y * COUNT_COLUMNS + x] == Status.Player1) ? PLAYER_1 : PLAYER_2;
+        }
+
+        private void PrintCurrentCursor()
+        {
+            CursorLeft = _horizontalPos[CurrentCursorX];
+            CursorTop = _verticalPos[CurrentCursorY];
+
+            BackgroundColor = HIGHLIGHT_COLOR;
+
+            Write(GetStatusText(CurrentCursorX, CurrentCursorY));
+
+            ResetColor();
+        }
+
+        private void ClearPreviousCursor()
+        {
+            CursorLeft = _horizontalPos[PreviousCursorX];
+            CursorTop = _verticalPos[PreviousCursorY];
+
+            Write(GetStatusText(PreviousCursorX, PreviousCursorY));
+        }
+
+        private void TryMoveCursor(int displacement)
+        {
+            if (!Enum.IsDefined(typeof(Move), _currentCursorPos + displacement))
+                return;
+
+            _currentCursorPos += displacement;
+
+            ClearPreviousCursor();
+            PrintCurrentCursor();
+
+            _previousCursorPos = _currentCursorPos;
+        }
+
+        private bool TryPlacement(Move move)
         {
             if (_board[(int)move] != Status.Null)
                 return false;
 
-            _board[(int)move] = (IsPlayer1) ? Status.O : Status.X;
+            _board[(int)move] = (IsPlayer1) ? Status.Player1 : Status.Player2;
+
+            CursorLeft = _horizontalPos[CurrentCursorX];
+            CursorTop = _verticalPos[CurrentCursorY];
+
+            Write((IsPlayer1) ? PLAYER_1 : PLAYER_2);
 
             IsPlayer1 = !IsPlayer1;
 
@@ -157,19 +247,19 @@ namespace Tic_Tac_Toe
                         break;
                     }
 
-                    if (_board[_winningLines[i, j]] != Status.O)
+                    if (_board[_winningLines[i, j]] != Status.Player1)
                         isPlayer1Win = false;
 
-                    if (_board[_winningLines[i, j]] != Status.X)
+                    if (_board[_winningLines[i, j]] != Status.Player2)
                         isPlayer2Win = false;
 
                 }
 
                 if (isPlayer1Win)
-                    return Status.O;
+                    return Status.Player1;
 
                 if (isPlayer2Win)
-                    return Status.X;
+                    return Status.Player2;
             }
 
             return Status.Null;

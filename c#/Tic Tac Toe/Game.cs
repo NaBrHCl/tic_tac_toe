@@ -48,14 +48,21 @@ namespace Tic_Tac_Toe
 
             board.Print();
 
-            while (board.CheckWin() == Status.Null)
+            Status status;
+
+            do
             {
-                board.Print();
+                if (board.GetOption())
+                    Environment.Exit(0);
 
                 board.UpdateTurn();
 
-
+                status = board.CheckWin();
             }
+            while (status == Status.Null);
+
+            WriteLine("\n" + status + " wins!");
+            ReadLine();
         }
     }
 }
