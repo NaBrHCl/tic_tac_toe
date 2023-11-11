@@ -1,4 +1,5 @@
-﻿using static System.Console;
+﻿using System.Runtime.CompilerServices;
+using static System.Console;
 
 namespace Tic_Tac_Toe
 {
@@ -26,11 +27,34 @@ namespace Tic_Tac_Toe
         {
             CursorVisible = false;
 
-            switch (Menu.GetOption())
+            Option option = Menu.GetOption();
+
+            Clear();
+
+            Board.Init();
+
+            switch (option)
             {
-                case Option.PVP: break;
+                case Option.PVP: PVP(); break;
                 case Option.PVE: break;
                 case Option.Exit: return;
+            }
+
+        }
+
+        static void PVP()
+        {
+            Board board = new Board();
+
+            board.Print();
+
+            while (board.CheckWin() == Status.Null)
+            {
+                board.Print();
+
+                board.UpdateTurn();
+
+
             }
         }
     }

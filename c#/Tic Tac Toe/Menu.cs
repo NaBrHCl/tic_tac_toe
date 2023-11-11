@@ -4,9 +4,9 @@ namespace Tic_Tac_Toe
 {
     static class Menu
     {
-        public const string LEFT_CURSOR = "->";
-        public const string RIGHT_CURSOR = "<-";
-        public const int CURSOR_GAP = 10;
+        private const string LEFT_CURSOR = "->";
+        private const string RIGHT_CURSOR = "<-";
+        private const int CURSOR_GAP = 10;
 
         private static int pvpCursorPos;
         private static int pveCursorPos;
@@ -53,6 +53,8 @@ namespace Tic_Tac_Toe
 
         private static void Display()
         {
+            Clear();
+
             Write("    TIC-TAC-TOE\n\n\t");
             cursorIndent = CursorLeft * 3 / 5;
             pvpCursorPos = CursorTop;
