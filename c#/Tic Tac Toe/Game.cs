@@ -36,7 +36,7 @@ namespace Tic_Tac_Toe
             switch (option)
             {
                 case Option.PVP: PVP(); break;
-                case Option.PVE: break;
+                case Option.PVE: PVE(); break;
                 case Option.Exit: return;
             }
 
@@ -44,18 +44,21 @@ namespace Tic_Tac_Toe
 
         static void PVP()
         {
+            const string NAME_1 = "Player 1";
+            const string NAME_2 = "Player 2";
+
             Board board = new Board();
+            Status status;
 
             board.Print();
-
-            Status status;
+            board.UpdateTurn(NAME_1, NAME_2);
 
             do
             {
                 if (board.GetOption())
                     Environment.Exit(0);
 
-                board.UpdateTurn();
+                board.UpdateTurn(NAME_1, NAME_2);
 
                 status = board.CheckWin();
             }
@@ -67,7 +70,48 @@ namespace Tic_Tac_Toe
                 WriteLine("Draw!");
             else
                 WriteLine(status + " wins!");
-            ReadLine();
+
+            Thread.Sleep(2000);
+        }
+
+        static void PVE()
+        {
+            const string NAME_1 = "Computer";
+            const string NAME_2 = "Player";
+
+            Board board = new Board();
+            Status status;
+
+            board.Print();
+
+            board.GetAIOption();
+
+            board.UpdateTurn(NAME_1, NAME_2);
+
+            do
+            {
+                if (!board.IsPlayer1)
+                {
+                    if (board.GetOption())
+                        Environment.Exit(0);
+                }
+                else
+                    board.GetAIOption();
+
+                board.UpdateTurn(NAME_1, NAME_2);
+
+                status = board.CheckWin();
+            }
+            while (status == Status.Null);
+
+            WriteLine();
+
+            if (status == Status.Draw)
+                WriteLine("Draw!");
+            else
+                WriteLine(status + " wins!");
+
+            Thread.Sleep(2000);
         }
     }
 }

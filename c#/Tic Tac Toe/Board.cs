@@ -1,4 +1,5 @@
-﻿using static System.Console;
+﻿using System.Runtime.CompilerServices;
+using static System.Console;
 
 namespace Tic_Tac_Toe
 {
@@ -69,28 +70,34 @@ namespace Tic_Tac_Toe
 
         public int CurrentCursorX
         {
-            get => _currentCursorPos % 3;
+            get => _currentCursorPos % COUNT_COLUMNS;
         }
 
         public int CurrentCursorY
         {
-            get => _currentCursorPos / 3;
+            get => _currentCursorPos / COUNT_COLUMNS;
         }
 
         public int PreviousCursorX
         {
-            get => _previousCursorPos % 3;
+            get => _previousCursorPos % COUNT_COLUMNS;
         }
 
         public int PreviousCursorY
         {
-            get => _previousCursorPos / 3;
+            get => _previousCursorPos / COUNT_COLUMNS;
         }
 
         public Board()
         {
             for (int i = 0; i < _board.Length; i++)
                 _board[i] = Status.Null;
+
+            //_board = new Status[] {
+            //    Status.Player1, Status.Player2, Status.Player2,
+            //    Status.Null, Status.Player2, Status.Null,
+            //    Status.Null, Status.Player1, Status.Player1
+            //};
 
             _currentCursorPos = (int)Math.Floor((double)(COUNT_COLUMNS * COUNT_ROWS) / 2);
             _previousCursorPos = _currentCursorPos;
@@ -135,16 +142,14 @@ namespace Tic_Tac_Toe
             }
 
             _turnPos = CursorTop + 1;
-
-            UpdateTurn();
         }
 
-        public void UpdateTurn()
+        public void UpdateTurn(string name1, string name2)
         {
             CursorLeft = 0;
             CursorTop = _turnPos;
 
-            string turnText = "Player " + ((IsPlayer1) ? "1" : "2") + "'s Turn";
+            string turnText = ((IsPlayer1) ? name1 : name2) + "'s Turn";
 
             WriteLine(turnText + new string(' ', WindowWidth - turnText.Length));
         }
@@ -175,6 +180,75 @@ namespace Tic_Tac_Toe
                     case Key.Cancel: return true;
                 }
             }
+        }
+
+        public void GetAIOption()
+        {
+            int option = Minimax(true, true);
+
+            TryPlacement((Move)option);
+        }
+
+        public int Minimax(bool isFirstLayer, bool isComputer)
+        {
+            Status status = CheckWin();
+
+            if (status != Status.Null)
+            {
+                switch (status)
+                {
+                    case Status.Draw: return 0;
+                    case Status.Player1: return 1;
+                    case Status.Player2: return -1;
+                }
+            }
+
+            int bestScore;
+            int bestIndex = -1;
+
+            for (int i = 0; i < _board.Length; i++)
+            {
+                if (_board[i] == Status.Null)
+                {
+                    bestIndex = i;
+                    break;
+                }
+            }
+
+            _board[bestIndex] = (isComputer) ? Status.Player1 : Status.Player2;
+
+            bestScore = Minimax(false, !isComputer);
+
+            _board[bestIndex] = Status.Null;
+
+            for (int i = bestIndex + 1; i < _board.Length; i++)
+            {
+                if (i == 6 && isFirstLayer)
+                    Write("");
+
+                if (_board[i] == Status.Null)
+                {
+                    _board[i] = (isComputer) ? Status.Player1 : Status.Player2;
+
+                    int score = Minimax(false, !isComputer);
+
+                    _board[i] = Status.Null;
+
+                    bool shouldUpdateBest = (!isComputer) ? (score < bestScore) : (score > bestScore);
+
+                    if (shouldUpdateBest)
+                    {
+                        bestScore = score;
+                        bestIndex = i;
+                    }
+                }
+
+            }
+
+            if (!isFirstLayer)
+                return bestScore;
+            else
+                return bestIndex;
         }
 
         private string GetStatusText(int x, int y)
@@ -222,8 +296,8 @@ namespace Tic_Tac_Toe
 
             _board[(int)move] = (IsPlayer1) ? Status.Player1 : Status.Player2;
 
-            CursorLeft = _horizontalPos[CurrentCursorX];
-            CursorTop = _verticalPos[CurrentCursorY];
+            CursorLeft = _horizontalPos[(int)move % COUNT_COLUMNS];
+            CursorTop = _verticalPos[(int)move / COUNT_COLUMNS];
 
             Write((IsPlayer1) ? PLAYER_1 : PLAYER_2);
 
