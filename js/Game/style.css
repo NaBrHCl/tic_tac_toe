@@ -1,0 +1,37 @@
+:root {
+    --black: #444444;
+    --lineWidth: 16px;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 90vh;
+}
+
+#tic-tac-toe {
+    width: 75vh;
+    height: 75vh;
+
+    background-color: ghostwhite;
+}
+
+#tic-tac-toe .horizontal-line {
+    position: relative;
+
+    width: 100%;
+    height: var(--lineWidth);
+
+    background-color: var(--black);
+}
+
+#tic-tac-toe .vertical-line {
+    position: relative;
+
+    width: var(--lineWidth);
+    height: 100%;
+
+    background-color: var(--black);
+}
