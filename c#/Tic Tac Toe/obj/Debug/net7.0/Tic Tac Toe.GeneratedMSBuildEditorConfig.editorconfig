@@ -9,3 +9,5 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Tic_Tac_Toe
 build_property.ProjectDir = C:\Users\sliu2\Dropbox\PC\Desktop\Studying\.Inutile\tic_tac_toe\c#\Tic Tac Toe\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 

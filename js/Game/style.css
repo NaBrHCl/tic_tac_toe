@@ -15,23 +15,23 @@ body {
     width: 75vh;
     height: 75vh;
 
-    background-color: ghostwhite;
-}
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
 
-#tic-tac-toe .horizontal-line {
-    position: relative;
-
-    width: 100%;
-    height: var(--lineWidth);
+    grid-gap: var(--lineWidth);
 
     background-color: var(--black);
+    color: var(--black);
+
 }
 
-#tic-tac-toe .vertical-line {
-    position: relative;
+.spot {
+    overflow: hidden;
 
-    width: var(--lineWidth);
-    height: 100%;
+    background-color: white;
 
-    background-color: var(--black);
+    font-size: 18vh;
+
+    text-align: center;
 }
