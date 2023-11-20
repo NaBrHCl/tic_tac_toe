@@ -36,19 +36,24 @@ class Board {
         }
 
         this.currentPlayer = 0;
+        this.computerFirst;
 
         switch (mode) {
             case 'PVP':
                 PLAYER_NAMES.push('Player 1');
                 PLAYER_NAMES.push('Player 2');
+                this.computerFirst = true;
                 break;
             case 'PVE':
                 PLAYER_NAMES.push('Player');
                 PLAYER_NAMES.push('Computer');
+                this.computerFirst = false;
                 break;
             case 'EVP':
                 PLAYER_NAMES.push('Computer');
                 PLAYER_NAMES.push('Player');
+                this.computerFirst = true;
+                break;
         }
 
         this.turnDisplayer = turnDisplayer;
@@ -60,7 +65,7 @@ class Board {
     getSpotCallback(index) {
         return () => {
             this.spotElements[index].style.cursor = 'default';
-            
+
             this.spots[index] = this.currentPlayer;
 
             this.changeCurrentPlayer();
@@ -151,7 +156,50 @@ class Board {
         return -1; // draw
     }
 
-    getOptimalMove() {
+    getOptimalMove(isFirstLayer, isComputer) {
+        if (!isFirstLayer) {
+            let result = this.checkWin();
 
+            if (result !== undefined) {
+                if (result === -1)
+                    return 0;
+
+                return ((result === 0) === this.computerFirst) ? 1 : -1;
+            }
+        }
+
+        let bestScore;
+        let bestIndex;
+
+        for (let i = 0; i < this.spots.length; i++) {
+            if (this.spots[i] === undefined) {
+                this.spots[i] = (isComputer === this.computerFirst) ? 0 : 1;
+                bestScore = this.getOptimalMove(false, !isComputer);
+                this.spots[i] = undefined;
+
+                bestIndex = i;
+                break;
+            }
+        }
+
+        for (let i = bestIndex + 1; i < this.spots.length; i++) {
+            if (this.spots[i] === undefined) {
+                this.spots[i] = (isComputer === this.computerFirst) ? 0 : 1;
+                let score = this.getOptimalMove(false, !isComputer);
+                this.spots[i] = undefined;
+
+                if (isFirstLayer)
+                    console.log(`${i + 1}'s score: ${score}`);
+
+                let isNewBest = (isComputer) ? (score > bestScore) : (score < bestScore);
+
+                if (isNewBest) {
+                    bestScore = score;
+                    bestIndex = i;
+                }
+            }
+        }
+
+        return (isFirstLayer) ? bestIndex : bestScore;
     }
 }
