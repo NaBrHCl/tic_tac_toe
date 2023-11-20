@@ -1,8 +1,7 @@
 const SIDE_LENGTH = 3;
 const COUNT_SPOTS = SIDE_LENGTH ** 2;
 
-const PLAYERS = ['✕', '〇'];
-
+const PLAYERS = ['⨉', '○'];
 const PLAYER_NAMES = [];
 
 const INCREMENTS = [1, 3, 2, 4];
@@ -150,5 +149,9 @@ class Board {
             return undefined;
 
         return -1; // draw
+    }
+
+    getOptimalMove() {
+
     }
 }
