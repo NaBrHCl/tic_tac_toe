@@ -27,8 +27,7 @@ class Board {
         this.spotCallbacks = [];
 
         for (let i = 0; i < this.spotElements.length; i++) {
-
-            let spotCallback = this.getSpotCallback(i);
+            let spotCallback = (mode === 'PVP') ? this.getSpotCallback(i) : this.getComputerSpotCallback(i);
 
             this.spotCallbacks.push(spotCallback);
 
@@ -42,7 +41,6 @@ class Board {
             case 'PVP':
                 PLAYER_NAMES.push('Player 1');
                 PLAYER_NAMES.push('Player 2');
-                this.computerFirst = true;
                 break;
             case 'PVE':
                 PLAYER_NAMES.push('Player');
@@ -59,33 +57,53 @@ class Board {
         this.turnDisplayer = turnDisplayer;
         this.resultDisplayer = resultDisplayer;
 
+        if (this.computerFirst)
+            this.placeAtIndex(this.getOptimalMove(true, true));
+
         this.displayCurrentPlayer();
     }
 
     getSpotCallback(index) {
         return () => {
-            this.spotElements[index].style.cursor = 'default';
-
-            this.spots[index] = this.currentPlayer;
-
-            this.changeCurrentPlayer();
-
-            this.displayCurrentPlayer();
-
-            this.updateSpot(index);
-
-            let result = this.checkWin();
-
-            if (result !== undefined) {
-                this.removeAllEventListener();
-
-                this.turnDisplayer.style.display = 'none';
-
-                this.displayFinalState(result);
-            }
+            this.placeAtIndex(index);
 
             this.spotElements[index].removeEventListener('click', this.spotCallbacks[index]);
         }
+    }
+
+    getComputerSpotCallback(index) {
+        return () => {
+            if (!this.placeAtIndex(index))
+                this.placeAtIndex(this.getOptimalMove(true, true));
+
+            this.spotElements[index].removeEventListener('click', this.spotCallbacks[index]);
+        }
+    }
+
+    placeAtIndex(index) {
+        this.spotElements[index].style.cursor = 'default';
+
+        this.spots[index] = this.currentPlayer;
+
+        this.changeCurrentPlayer();
+
+        this.displayCurrentPlayer();
+
+        this.updateSpot(index);
+
+        let result = this.checkWin();
+
+        if (result !== undefined) {
+            this.removeAllEventListener();
+
+            this.turnDisplayer.style.display = 'none';
+
+            this.displayFinalState(result);
+
+            return true;
+        }
+
+        return false;
     }
 
     displayCurrentPlayer() {
@@ -105,8 +123,10 @@ class Board {
 
     removeAllEventListener() {
         for (let i = 0; i < this.spots.length; i++) {
-            if (this.spots[i] === undefined)
+            if (this.spots[i] === undefined) {
                 this.spotElements[i].removeEventListener('click', this.spotCallbacks[i]);
+                this.spotElements[i].style.cursor = 'default';
+            }
         }
     }
 
@@ -187,9 +207,6 @@ class Board {
                 this.spots[i] = (isComputer === this.computerFirst) ? 0 : 1;
                 let score = this.getOptimalMove(false, !isComputer);
                 this.spots[i] = undefined;
-
-                if (isFirstLayer)
-                    console.log(`${i + 1}'s score: ${score}`);
 
                 let isNewBest = (isComputer) ? (score > bestScore) : (score < bestScore);
 
