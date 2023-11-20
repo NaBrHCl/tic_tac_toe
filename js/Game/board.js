@@ -16,7 +16,7 @@ class Board {
         return COUNT_SPOTS;
     }
 
-    constructor(spotElements, mode, turnDisplayer, resultDisplayer) {
+    constructor(spotElements, mode, statusDisplayer, calculationDisplayer) {
         this.spots = [];
 
         for (let i = 0; i < COUNT_SPOTS; i++)
@@ -54,11 +54,17 @@ class Board {
                 break;
         }
 
-        this.turnDisplayer = turnDisplayer;
-        this.resultDisplayer = resultDisplayer;
+        this.statusDisplayer = statusDisplayer;
+
+        if (mode === 'PVP')
+            calculationDisplayer.style.display = 'none';
+        else {
+            this.calculationDisplayer = calculationDisplayer;
+            this.numberCalculations = 0;
+        }
 
         if (this.computerFirst)
-            this.placeAtIndex(this.getOptimalMove(true, true));
+            this.makeComputerMove();
 
         this.displayCurrentPlayer();
     }
@@ -73,11 +79,22 @@ class Board {
 
     getComputerSpotCallback(index) {
         return () => {
-            if (!this.placeAtIndex(index))
-                this.placeAtIndex(this.getOptimalMove(true, true));
+
+            if (!this.placeAtIndex(index)) {
+                this.makeComputerMove();
+            }
+
 
             this.spotElements[index].removeEventListener('click', this.spotCallbacks[index]);
         }
+    }
+
+    makeComputerMove() {
+        this.numberCalculations = 0;
+
+        this.placeAtIndex(this.getOptimalMove(true, true));
+
+        this.calculationDisplayer.innerHTML = `Calculated<br>${this.numberCalculations} cases`;
     }
 
     placeAtIndex(index) {
@@ -96,8 +113,6 @@ class Board {
         if (result !== undefined) {
             this.removeAllEventListener();
 
-            this.turnDisplayer.style.display = 'none';
-
             this.displayFinalState(result);
 
             return true;
@@ -107,16 +122,16 @@ class Board {
     }
 
     displayCurrentPlayer() {
-        this.turnDisplayer.innerText = PLAYER_NAMES[this.currentPlayer] + '\'s Turn';
+        this.statusDisplayer.innerText = PLAYER_NAMES[this.currentPlayer] + '\'s Turn';
     }
 
     displayFinalState(result) {
         switch (result) {
             case -1:
-                this.resultDisplayer.innerText = 'Draw';
+                this.statusDisplayer.innerText = 'Draw';
                 break;
             default:
-                this.resultDisplayer.innerText = PLAYER_NAMES[result] + ' Won';
+                this.statusDisplayer.innerText = PLAYER_NAMES[result] + ' Won';
                 break;
         }
     }
@@ -177,6 +192,8 @@ class Board {
     }
 
     getOptimalMove(isFirstLayer, isComputer) {
+        this.numberCalculations++;
+
         if (!isFirstLayer) {
             let result = this.checkWin();
 

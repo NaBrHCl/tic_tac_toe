@@ -9,12 +9,10 @@ let gameMode = urlParams.get('mode');
 drawBoard(HTML_BOARD);
 
 let cells = document.getElementsByClassName(CELL_CLASS_NAME);
-let turnDisplayer = document.getElementById('turn-displayer');
-let resultDisplayer = document.getElementById('result-displayer');
+let statusDisplayer = document.getElementById('turn-or-result');
+let calculationDisplayer = document.getElementById('count-calculations');
 
-let board = new Board(cells, gameMode, turnDisplayer, resultDisplayer);
-
-// createCallbacks(board, gameMode);
+let board = new Board(cells, gameMode, statusDisplayer, calculationDisplayer);
 
 function drawBoard(root) {
     for (let i = 0; i < Board.COUNT_SPOTS; i++) {
@@ -23,15 +21,5 @@ function drawBoard(root) {
         cell.className = CELL_CLASS_NAME;
 
         root.appendChild(cell);
-    }
-}
-
-function createCallbacks(board, mode) {
-    for (let i = 0; i < board.spotElements.length; i++) {
-        let spotCallback = (mode === 'PVP') ? board.getSpotCallback() : board.getComputerSpotCallback();
-
-        board.spotCallbacks.push(spotCallback);
-
-        board.spotElements[i].addEventListener('click', spotCallback);
     }
 }
