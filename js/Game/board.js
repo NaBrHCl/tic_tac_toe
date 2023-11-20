@@ -60,6 +60,8 @@ class Board {
 
     getSpotCallback(index) {
         return () => {
+            this.spotElements[index].style.cursor = 'default';
+            
             this.spots[index] = this.currentPlayer;
 
             this.changeCurrentPlayer();

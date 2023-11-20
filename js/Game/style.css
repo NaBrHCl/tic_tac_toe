@@ -32,6 +32,8 @@ body {
     color: var(--black);
 
     cursor: pointer;
+
+    font-size: calc(var(--boardWidth) / 3 - var(--lineWidth) * 2);
 }
 
 .spot {
@@ -41,8 +43,6 @@ body {
     align-items: center;
     justify-content: center;
     background-color: white;
-
-    font-size: calc(var(--boardWidth) / 3 - var(--lineWidth) * 2);
 }
 
 #status {
