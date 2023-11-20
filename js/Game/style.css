@@ -1,6 +1,7 @@
 :root {
     --black: #444444;
-    --lineWidth: 16px;
+    --lineWidth: 2vh;
+    --boardWidth: 75vh;
 }
 
 body {
@@ -18,8 +19,8 @@ body {
 }
 
 #tic-tac-toe {
-    width: 75vh;
-    height: 75vh;
+    width: var(--boardWidth);
+    height: var(--boardWidth);
 
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -35,17 +36,30 @@ body {
 
 .spot {
     overflow: hidden;
-
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: white;
 
-    font-size: 18vh;
-
-    text-align: center;
+    /* font-size: 18vh; */
+    font-size: calc(var(--boardWidth) / 3 - var(--lineWidth) * 2);
 }
 
 #status {
     display: flex;
     flex-direction: column;
-    
+
     gap: 10vh;
+}
+
+@media screen and (max-width: 768px) {
+    :root {
+        --lineWidth: 1vh;
+        --boardWidth: 75vw;
+    }
+
+    body {
+        flex-direction: column;
+    }
 }
