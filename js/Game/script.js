@@ -9,8 +9,10 @@ const CELL_CLASS_NAME = 'spot';
 drawBoard(HTML_BOARD);
 
 let cells = document.getElementsByClassName(CELL_CLASS_NAME);
+let turnDisplayer = document.getElementById('turn-displayer');
+let resultDisplayer = document.getElementById('result-displayer');
 
-let board = new Board(cells);
+let board = new Board(cells, 'PVP', turnDisplayer, resultDisplayer);
 
 function drawBoard(root) {
     for (let i = 0; i < Board.COUNT_SPOTS; i++) {

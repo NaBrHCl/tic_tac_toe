@@ -3,6 +3,8 @@ const COUNT_SPOTS = SIDE_LENGTH ** 2;
 
 const PLAYERS = ['✕', '〇'];
 
+const PLAYER_NAMES = [];
+
 const INCREMENTS = [1, 3, 2, 4];
 const STARTS = [[0, 3, 6], [0, 1, 2], [2], [0]];
 
@@ -15,7 +17,7 @@ class Board {
         return COUNT_SPOTS;
     }
 
-    constructor(spotElements) {
+    constructor(spotElements, mode, turnDisplayer, resultDisplayer) {
         this.spots = [];
 
         for (let i = 0; i < COUNT_SPOTS; i++)
@@ -23,52 +25,83 @@ class Board {
 
         this.spotElements = Array.from(spotElements);
 
+        this.spotCallbacks = [];
+
         for (let i = 0; i < this.spotElements.length; i++) {
 
-            this.spotElements[i].addEventListener('click', this.getSpotCallback(i));
+            let spotCallback = this.getSpotCallback(i);
+
+            this.spotCallbacks.push(spotCallback);
+
+            this.spotElements[i].addEventListener('click', spotCallback);
         }
 
         this.currentPlayer = 0;
+
+        switch (mode) {
+            case 'PVP':
+                PLAYER_NAMES.push('Player 1');
+                PLAYER_NAMES.push('Player 2');
+                break;
+            case 'PVE':
+                PLAYER_NAMES.push('Player');
+                PLAYER_NAMES.push('Computer');
+                break;
+            case 'EVP':
+                PLAYER_NAMES.push('Computer');
+                PLAYER_NAMES.push('Player');
+        }
+
+        this.turnDisplayer = turnDisplayer;
+        this.resultDisplayer = resultDisplayer;
+
+        this.displayCurrentPlayer();
     }
 
     getSpotCallback(index) {
         return () => {
-            if (this.tryPlacement(index)) {
-                this.updateSpot(index);
+            this.spots[index] = this.currentPlayer;
 
-                let result = this.checkWin();
+            this.changeCurrentPlayer();
 
-                if (result !== undefined) {
-                    for (let i = 0; i < this.spots.length; i++) {
-                        console.log(result);
+            this.displayCurrentPlayer();
 
-                        if (this.spots[i] === undefined)
-                            this.spotElements[i].removeAllEventListener();
-                    }
+            this.updateSpot(index);
 
-                    console.log('final state: ' + result);
-                }
+            let result = this.checkWin();
+
+            if (result !== undefined) {
+                this.removeAllEventListener();
+
+                this.turnDisplayer.style.display = 'none';
+
+                this.displayFinalState(result);
             }
-        };
+
+            this.spotElements[index].removeEventListener('click', this.spotCallbacks[index]);
+        }
+    }
+
+    displayCurrentPlayer() {
+        this.turnDisplayer.innerText = PLAYER_NAMES[this.currentPlayer] + '\'s Turn';
+    }
+
+    displayFinalState(result) {
+        switch (result) {
+            case -1:
+                this.resultDisplayer.innerText = 'Draw';
+                break;
+            default:
+                this.resultDisplayer.innerText = PLAYER_NAMES[result] + ' Won';
+                break;
+        }
     }
 
     removeAllEventListener() {
         for (let i = 0; i < this.spots.length; i++) {
             if (this.spots[i] === undefined)
-                this.spotElements[i].removeEventListener('click');
+                this.spotElements[i].removeEventListener('click', this.spotCallbacks[i]);
         }
-    }
-
-    tryPlacement(index) {
-        if (this.spots[index] === undefined) {
-            this.spots[index] = this.currentPlayer;
-
-            this.changeCurrentPlayer();
-
-            return true;
-        }
-
-        return false;
     }
 
     changeCurrentPlayer() {

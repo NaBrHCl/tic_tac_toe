@@ -7,8 +7,14 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 8vw;
 
-    height: 90vh;
+    height: 100vh;
+    margin: 0;
+
+    
+    font-size: 4vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 #tic-tac-toe {
@@ -24,6 +30,7 @@ body {
     background-color: var(--black);
     color: var(--black);
 
+    cursor: pointer;
 }
 
 .spot {
@@ -34,4 +41,11 @@ body {
     font-size: 18vh;
 
     text-align: center;
+}
+
+#status {
+    display: flex;
+    flex-direction: column;
+    
+    gap: 10vh;
 }
