@@ -42,7 +42,6 @@ body {
     justify-content: center;
     background-color: white;
 
-    /* font-size: 18vh; */
     font-size: calc(var(--boardWidth) / 3 - var(--lineWidth) * 2);
 }
 
